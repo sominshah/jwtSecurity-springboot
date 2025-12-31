@@ -1,11 +1,15 @@
 $(document).ready(function ()
 {
+         const token = localStorage.getItem("jwt_token");
+        if (token) {
+            // User already logged in
+            window.location.replace("/home.html");
+        }
 
 
     $("#loginForm").submit(function (e) {
         e.preventDefault();
         $("#errorMsg").addClass("d-none").text("");
-
         const loginPayload = {
             username: $("#username").val().trim(),
             password: $("#password").val().trim()

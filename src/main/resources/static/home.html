@@ -3,6 +3,9 @@
 <head>
     <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 </head>
 <body>
 <nav class="navbar navbar-dark bg-dark">
@@ -18,38 +21,33 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="auth.js"></script>
 <script>
-
-    /*
-    headers: {
-        "Authorization": "Bearer " + token
-    },
-*/
-
     $(document).ready(function ()
     {
 
     const token = localStorage.getItem("jwt_token");
      if (!token) {
-        window.location.href = "/login.html";
-        return;
+          window.location.replace("/login.html");
+           return;
     }
 
      $("#logoutBtn").click(function () {
-         localStorage.removeItem("jwt_token");
-         window.location.href = "/login.html";
+           localStorage.removeItem("jwt_token");
+            window.location.replace("/login.html");
      });
 
-    $.ajax({
-        url: "/api/user/me",
-        type: "GET",
-        success: function (user) {
-            $("#userInfo").text(user.username);
-        },
-        error: function () {
+$.ajax({
+    url: "/api/user/me",
+    type: "GET",
+    success: function (user) {
+        $("#userInfo").text("Welcome " + user.username);
+    },
+    error: function (xhr) {
+        if (xhr.status === 401) {
             localStorage.removeItem("jwt_token");
-            window.location.href = "/login.html";
+            window.location.replace("/login.html");
         }
-    });
+    }
+});
 });
 
 

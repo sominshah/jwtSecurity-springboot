@@ -32,12 +32,31 @@ public class SecurityConfig
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         http.csrf(AbstractHttpConfigurer::disable);
+        http.sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers("/register","/login").permitAll()
+
+                //permitting backend apis
+                .requestMatchers(
+                        "/register",
+                        "/login",
+                        "/login.html"
+                ).permitAll()
+
+                //permitting front end files
+
+                .requestMatchers(
+                        "/login.html",
+                        "/home.html",
+                        "/login.js",
+                        "/auth.js",
+                        "/favicon.ico"
+                ).permitAll()
+
+
                 .anyRequest().authenticated());
         //http.formLogin(Customizer.withDefaults());
-        http.httpBasic(Customizer.withDefaults());
-        http.sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+       // http.httpBasic(Customizer.withDefaults());
+
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

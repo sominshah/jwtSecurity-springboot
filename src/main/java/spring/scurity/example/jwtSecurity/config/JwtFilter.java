@@ -24,26 +24,33 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     ApplicationContext applicationContext;
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException
     {
         String authorizationHeader = request.getHeader("Authorization");
         String token = authorizationHeader == null ? null : authorizationHeader.replace("Bearer ", "");
         String username = null;
-        if (token != null)
-        {
+
+        try {
+            if (token != null) {
                 username = jwtService.extractUsername(token);
-                if(username != null && SecurityContextHolder.getContext().getAuthentication() == null)
-                {
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = (UserDetails) applicationContext.getBean(AppUserDetailsService.class).loadUserByUsername(username);
-                    if(jwtService.validateToken(token,userDetails))
-                    {
+                    if (jwtService.validateToken(token, userDetails)) {
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                         authentication.setDetails(new WebAuthenticationDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
 
                 }
+            }
+        }catch (Throwable throwable){
+
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

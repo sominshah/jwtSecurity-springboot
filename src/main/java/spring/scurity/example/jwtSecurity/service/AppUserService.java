@@ -28,7 +28,7 @@ public class AppUserService
         return appUserRepository.findByUsername(username).isPresent();
     }
 
-    public @Nullable Object verify(AppUser appUser)
+    public String verify(AppUser appUser)
     {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(appUser.getUsername(), appUser.getPassword()));
         if(authentication.isAuthenticated()) return jwtService.generateToken(appUser.getUsername());

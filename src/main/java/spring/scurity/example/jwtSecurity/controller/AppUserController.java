@@ -1,10 +1,15 @@
 package spring.scurity.example.jwtSecurity.controller;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import spring.scurity.example.jwtSecurity.model.AppUser;
 import spring.scurity.example.jwtSecurity.service.AppUserService;
 import spring.scurity.example.jwtSecurity.utility.HashGenerator;
+
+import java.util.Map;
 
 @RestController
 public class AppUserController
@@ -31,7 +36,21 @@ public class AppUserController
         {
             return ResponseEntity.badRequest().body("Username ["+appUser.getUsername()+"] is not available.");
         }
+        String token =appUserService.verify(appUser);
+        System.out.println("Login Response for Token: "+token);
+        return ResponseEntity.ok(token);
+    }
 
-        return ResponseEntity.ok(appUserService.verify(appUser));
+
+    @GetMapping("/api/user/me")
+    public ResponseEntity<?> me(  @AuthenticationPrincipal UserDetails userDetails)
+    {
+        System.out.println("Me Request for "+userDetails);
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(Map.of(
+                        "username", userDetails.getUsername(),
+                        "roles", userDetails.getAuthorities()));
     }
 }
